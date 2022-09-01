@@ -26,10 +26,10 @@ module.exports = {
   development: {
     client: 'postgresql',
     connection: {
-      host: process.env.DEV_DATABASE_HOST,
-      database: process.env.DEV_DATABASE,
-      user: process.env.DEV_DATABASE_USER,
-      password: process.env.DEV_DATABASE_PASSWORD,
+      host: 'localhost',
+      database: 'pg-litefarm',
+      user: 'postgres',
+      password: 'password',
     },
     migrations: {
       directory: root + '/db/migration',
