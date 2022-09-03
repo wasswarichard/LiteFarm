@@ -87,6 +87,7 @@ export default function TaskQuickAssignModal({
             amount: parseInt(wageAmount),
             type: 'hourly',
           },
+          email: selectedWorker.email,
         })
       : onAssignTask({
           task_id: task_id,
@@ -141,7 +142,7 @@ export default function TaskQuickAssignModal({
       {/*TODO: properly fix checkbox label overflow ST-272*/}
 
       {selectedWorker.wage?.amount > 0 ||
-      !selectedWorker.wage?.ask_always ||
+      selectedWorker.wage?.ask_always === false ||
       selectedWorker.value === null ? (
         <Checkbox
           data-cy="quickAssign-assignAll"

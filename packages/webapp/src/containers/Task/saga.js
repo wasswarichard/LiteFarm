@@ -3,7 +3,7 @@ import { createAction } from '@reduxjs/toolkit';
 import apiConfig from '../../apiConfig';
 import { axios, getHeader, getPlantingManagementPlansSuccessSaga, onReqSuccessSaga } from '../saga';
 import i18n from '../../locales/i18n';
-import { loginSelector } from '../userFarmSlice';
+import { loginSelector, putUserSuccess } from '../userFarmSlice';
 import history from '../../history';
 import { enqueueErrorSnackbar, enqueueSuccessSnackbar } from '../Snackbar/snackbarSlice';
 import { addManyTasksFromGetReq, putTasksSuccess, putTaskSuccess } from '../taskSlice';
@@ -110,9 +110,10 @@ export function* assignTaskSaga({ payload: { task_id, assignee_user_id } }) {
 
 export const assignTasksOnDate = createAction('assignTaskOnDateSaga');
 
-export function* assignTaskOnDateSaga({ payload: { task_id, date, assignee_user_id, ...rest } }) {
+export function* assignTaskOnDateSaga({ payload: { task_id, date, assignee_user_id, ...props } }) {
   const { taskUrl } = apiConfig;
   let { user_id, farm_id } = yield select(loginSelector);
+  let { email, ...rest } = props;
   const header = getHeader(user_id, farm_id);
   try {
     const result = yield call(
@@ -133,6 +134,7 @@ export function* assignTaskOnDateSaga({ payload: { task_id, date, assignee_user_
       });
     }
     yield put(putTasksSuccess(modified_tasks));
+    yield put(putUserSuccess({ wage: rest.wage, email, user_id, farm_id }));
     yield put(enqueueSuccessSnackbar(i18n.t('message:ASSIGN_TASK.SUCCESS')));
   } catch (e) {
     console.log(e);
