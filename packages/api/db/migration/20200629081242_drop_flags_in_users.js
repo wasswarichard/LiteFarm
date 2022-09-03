@@ -32,7 +32,6 @@ export const down = function (knex) {
         JSON.stringify({
           type: 'hourly',
           amount: 0,
-          never_ask: false,
         }),
       );
     }),
