@@ -134,7 +134,7 @@ export function* assignTaskOnDateSaga({ payload: { task_id, date, assignee_user_
       });
     }
     yield put(putTasksSuccess(modified_tasks));
-    yield put(putUserSuccess({ wage: rest.wage, email, user_id, farm_id }));
+    yield put(putUserSuccess({ wage: rest.wage, email, user_id: assignee_user_id, farm_id }));
     yield put(enqueueSuccessSnackbar(i18n.t('message:ASSIGN_TASK.SUCCESS')));
   } catch (e) {
     console.log(e);

@@ -54,7 +54,7 @@ export const up = async function (knex) {
         JSON.stringify({
           type: 'hourly',
           amount: 0,
-          ask_always: false,
+          never_ask: false,
         }),
       );
       table.timestamps(false, true);

@@ -53,7 +53,7 @@ export default function TaskQuickAssignModal({
 
   const [selectedWorker, setWorker] = useState(isAssigned ? unAssignedOption : selfOption);
   const [assignAll, setAssignAll] = useState(false);
-  const [askAlways, setAskAlways] = useState(false);
+  const [neverAsk, setNeverAsk] = useState(false);
   const [wageAmount, setWageAmount] = useState(0);
 
   const tasks = useSelector(tasksSelector);
@@ -83,7 +83,7 @@ export default function TaskQuickAssignModal({
           date: due_date,
           assignee_user_id: selectedWorker.value,
           wage: {
-            ask_always: askAlways,
+            never_ask: neverAsk,
             amount: parseInt(wageAmount),
             type: 'hourly',
           },
@@ -101,7 +101,7 @@ export default function TaskQuickAssignModal({
   };
 
   const onCheckAskAlways = () => {
-    setAskAlways(!askAlways);
+    setNeverAsk(!neverAsk);
   };
 
   const disabled = selectedWorker === null;
@@ -142,7 +142,7 @@ export default function TaskQuickAssignModal({
       {/*TODO: properly fix checkbox label overflow ST-272*/}
 
       {selectedWorker.wage?.amount > 0 ||
-      selectedWorker.wage?.ask_always === false ||
+      selectedWorker.wage?.never_ask === true ||
       user.role_id === 3 ||
       selectedWorker.value === null ? (
         <Checkbox

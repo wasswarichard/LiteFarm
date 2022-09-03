@@ -112,7 +112,7 @@ const taskController = {
       }
 
       // update wage and don't always ask wage
-      if (wage.amount || wage.ask_always) {
+      if (wage.amount || wage.never_ask) {
         const trx = await transaction.start(Model.knex());
         const isPatched = await UserFarmModel.query(trx)
           .where('farm_id', farm_id)
