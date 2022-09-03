@@ -24,6 +24,7 @@ import HarvestUse from '../models/harvestUseModel.js';
 import NotificationUser from '../models/notificationUserModel.js';
 import User from '../models/userModel.js';
 import { typesOfTask } from './../middleware/validation/task.js';
+import { Model, transaction } from 'objection';
 const adminRoles = [1, 2, 5];
 // const isDateInPast = (date) => {
 //   const today = new Date();
@@ -83,7 +84,7 @@ const taskController = {
     try {
       const { farm_id } = req.headers;
       const { user_id } = req.user;
-      const { assignee_user_id: newAssigneeUserId, date } = req.body;
+      const { assignee_user_id: newAssigneeUserId, date, wage } = req.body;
       const {
         assignee_user_id: oldAssigneeUserId,
         task_translation_key: currentTaskTranslationKey,
@@ -108,6 +109,23 @@ const taskController = {
           farm_id,
           user_id,
         );
+      }
+
+      // update wage and don't always ask wage
+      if (wage.amount || wage.ask_always) {
+        const trx = await transaction.start(Model.knex());
+        const isPatched = await UserFarmModel.query(trx)
+          .where('farm_id', farm_id)
+          .andWhere('user_id', newAssigneeUserId)
+          .patch({
+            wage,
+          });
+        if (isPatched) {
+          await trx.commit();
+        } else {
+          await trx.rollback();
+          return res.sendStatus(404);
+        }
       }
 
       // assign all other unassigned tasks due on this day to newAssigneeUserId

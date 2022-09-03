@@ -60,6 +60,7 @@ import {
   onLoadingHarvestUseTypeStart,
 } from '../harvestUseTypeSlice';
 import { managementPlanWithCurrentLocationEntitiesSelector } from './TaskCrops/managementPlansWithLocationSelector';
+import moment from 'moment';
 
 const taskTypeEndpoint = [
   'cleaning_task',
@@ -109,7 +110,7 @@ export function* assignTaskSaga({ payload: { task_id, assignee_user_id } }) {
 
 export const assignTasksOnDate = createAction('assignTaskOnDateSaga');
 
-export function* assignTaskOnDateSaga({ payload: { task_id, date, assignee_user_id } }) {
+export function* assignTaskOnDateSaga({ payload: { task_id, date, assignee_user_id, ...rest } }) {
   const { taskUrl } = apiConfig;
   let { user_id, farm_id } = yield select(loginSelector);
   const header = getHeader(user_id, farm_id);
@@ -117,7 +118,11 @@ export function* assignTaskOnDateSaga({ payload: { task_id, date, assignee_user_
     const result = yield call(
       axios.patch,
       `${taskUrl}/assign_all_tasks_on_date/${task_id}`,
-      { assignee_user_id: assignee_user_id, date: date },
+      {
+        assignee_user_id: assignee_user_id,
+        date: moment(new Date(date)).format('MMM D, YYYY'),
+        ...rest,
+      }, // format date to accepted format
       header,
     );
     let modified_tasks = [];
