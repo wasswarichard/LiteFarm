@@ -154,8 +154,7 @@ export default function TaskQuickAssignModal({
       ) : (
         <>
           <div style={{ marginBottom: '24px', color: '#AA5F03' }}>
-            {selectedWorker.label} doesn&rsquo;t currently have an hourly wage assigned, Would you
-            like to set one now?
+            {selectedWorker.label} {t('ADD_TASK.ASK_WAGE_QUESTION')}
           </div>
           <Input
             label={t('INVITE_USER.WAGE')}

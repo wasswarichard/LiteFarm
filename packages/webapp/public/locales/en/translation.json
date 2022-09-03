@@ -26,6 +26,7 @@
     "ADD_CUSTOM_TASK": "Add custom task",
     "AFFECT_PLANS": "Will this task affect any plans?",
     "ASSIGN_ALL_TO_PERSON": "Assign all unassigned tasks on this date to this person",
+    "ASK_WAGE_QUESTION": "doesn't currently have an hourly wage assigned, Would you like to set one now?",
     "DO_NOT_ASK_AGAIN": "Don't ask again",
     "MAKE_ALL_TASK_CHANGES": "Make these changes for all tasks on this date",
     "ASSIGN_DATE": "Change task date",
