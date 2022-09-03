@@ -143,6 +143,7 @@ export default function TaskQuickAssignModal({
 
       {selectedWorker.wage?.amount > 0 ||
       selectedWorker.wage?.ask_always === false ||
+      user.role_id === 3 ||
       selectedWorker.value === null ? (
         <Checkbox
           data-cy="quickAssign-assignAll"
