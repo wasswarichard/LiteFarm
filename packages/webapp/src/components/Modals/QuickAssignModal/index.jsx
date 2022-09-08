@@ -145,7 +145,12 @@ export default function TaskQuickAssignModal({
         defaultValue={selectedWorker}
         label={t('ADD_TASK.ASSIGNEE')}
         options={options}
-        onChange={setWorker}
+        onChange={(worker) => {
+          setWorker(worker);
+          setWageAmount(worker.wage && worker.wage.amount ? worker.wage.amount : 0);
+          setNeverAsk(worker.wage && worker.wage.never_ask ? worker.wage.never_ask : false);
+          console.log(worker);
+        }}
         style={{ marginBottom: '24px' }}
         isSearchable
       />

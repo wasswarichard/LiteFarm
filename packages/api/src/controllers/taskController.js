@@ -25,6 +25,7 @@ import NotificationUser from '../models/notificationUserModel.js';
 import User from '../models/userModel.js';
 import { typesOfTask } from './../middleware/validation/task.js';
 import { Model, transaction } from 'objection';
+
 const adminRoles = [1, 2, 5];
 // const isDateInPast = (date) => {
 //   const today = new Date();
@@ -36,22 +37,14 @@ const adminRoles = [1, 2, 5];
 // };
 
 const taskController = {
-  async updateAssigneeWage({ res, farm_id, newAssigneeUserId, wage }) {
-    if (wage.amount || wage.never_ask) {
-      const trx = await transaction.start(Model.knex());
-      const isPatched = await UserFarmModel.query(trx)
-        .where('farm_id', farm_id)
-        .andWhere('user_id', newAssigneeUserId)
-        .patch({
-          wage,
-        });
-      if (isPatched) {
-        await trx.commit();
-      } else {
-        await trx.rollback();
-        return res.sendStatus(404);
-      }
-    }
+  async updateAssigneeWage({ farm_id, newAssigneeUserId, wage }) {
+    const trx = await transaction.start(Model.knex());
+    return await UserFarmModel.query(trx)
+      .where('farm_id', farm_id)
+      .andWhere('user_id', newAssigneeUserId)
+      .patch({
+        wage,
+      });
   },
 
   async assignTask(req, res) {
@@ -79,8 +72,21 @@ const taskController = {
       );
 
       // update wage and don't always ask wage
-      if (newAssigneeUserId !== null)
-        await this.updateAssigneeWage({ res, farm_id, newAssigneeUserId, wage });
+      if (newAssigneeUserId !== null) {
+        const trx = await transaction.start(Model.knex());
+        const isPatched = await UserFarmModel.query(trx)
+          .where('farm_id', farm_id)
+          .andWhere('user_id', newAssigneeUserId)
+          .patch({
+            wage,
+          });
+        if (isPatched) {
+          await trx.commit();
+        } else {
+          await trx.rollback();
+          return res.sendStatus(404);
+        }
+      }
 
       if (newAssigneeUserId === null) {
         const farmManagementObjs = await UserFarmModel.getFarmManagementByFarmId(farm_id);
@@ -132,8 +138,22 @@ const taskController = {
           user_id,
         );
       }
+
       // update wage and don't always ask wage
-      await this.updateAssigneeWage({ res, farm_id, newAssigneeUserId, wage });
+
+      const trx = await transaction.start(Model.knex());
+      const isPatched = await UserFarmModel.query(trx)
+        .where('farm_id', farm_id)
+        .andWhere('user_id', newAssigneeUserId)
+        .patch({
+          wage,
+        });
+      if (isPatched) {
+        await trx.commit();
+      } else {
+        await trx.rollback();
+        return res.sendStatus(404);
+      }
 
       // assign all other unassigned tasks due on this day to newAssigneeUserId
       const available_tasks = await TaskModel.getAvailableTasksOnDate(taskIds, date, req.user);
