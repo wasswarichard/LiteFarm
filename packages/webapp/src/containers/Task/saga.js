@@ -102,7 +102,7 @@ export function* assignTaskSaga({ payload: { task_id, assignee_user_id, ...props
       header,
     );
     yield put(putTaskSuccess({ assignee_user_id, task_id }));
-    if (assignee_user_id)
+    if (assignee_user_id !== null)
       yield put(putUserSuccess({ wage: rest.wage, email, user_id: assignee_user_id, farm_id }));
     yield put(enqueueSuccessSnackbar(i18n.t('message:ASSIGN_TASK.SUCCESS')));
   } catch (e) {
