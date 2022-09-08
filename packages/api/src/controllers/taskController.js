@@ -37,16 +37,6 @@ const adminRoles = [1, 2, 5];
 // };
 
 const taskController = {
-  async updateAssigneeWage({ farm_id, newAssigneeUserId, wage }) {
-    const trx = await transaction.start(Model.knex());
-    return await UserFarmModel.query(trx)
-      .where('farm_id', farm_id)
-      .andWhere('user_id', newAssigneeUserId)
-      .patch({
-        wage,
-      });
-  },
-
   async assignTask(req, res) {
     try {
       const { task_id } = req.params;
@@ -140,7 +130,6 @@ const taskController = {
       }
 
       // update wage and don't always ask wage
-
       const trx = await transaction.start(Model.knex());
       const isPatched = await UserFarmModel.query(trx)
         .where('farm_id', farm_id)
