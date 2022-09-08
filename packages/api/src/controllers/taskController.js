@@ -37,7 +37,6 @@ const adminRoles = [1, 2, 5];
 
 const taskController = {
   async updateAssigneeWage({ res, farm_id, newAssigneeUserId, wage }) {
-    // update wage and don't always ask wage
     if (wage.amount || wage.never_ask) {
       const trx = await transaction.start(Model.knex());
       const isPatched = await UserFarmModel.query(trx)
@@ -60,7 +59,7 @@ const taskController = {
       const { task_id } = req.params;
       const { farm_id } = req.headers;
       const { user_id } = req.user;
-      const { assignee_user_id: newAssigneeUserId } = req.body;
+      const { assignee_user_id: newAssigneeUserId, wage } = req.body;
       const { assignee_user_id: oldAssigneeUserId, task_translation_key } = req.checkTaskStatus;
 
       // Avoid 1) making an empty update, and 2) sending a redundant notification.
@@ -78,6 +77,10 @@ const taskController = {
         farm_id,
         user_id,
       );
+
+      // update wage and don't always ask wage
+      if (newAssigneeUserId !== null)
+        await this.updateAssigneeWage({ res, farm_id, newAssigneeUserId, wage });
 
       if (newAssigneeUserId === null) {
         const farmManagementObjs = await UserFarmModel.getFarmManagementByFarmId(farm_id);
@@ -129,7 +132,7 @@ const taskController = {
           user_id,
         );
       }
-
+      // update wage and don't always ask wage
       await this.updateAssigneeWage({ res, farm_id, newAssigneeUserId, wage });
 
       // assign all other unassigned tasks due on this day to newAssigneeUserId
