@@ -89,18 +89,21 @@ export function* getProductsSaga() {
 
 export const assignTask = createAction('assignTaskSaga');
 
-export function* assignTaskSaga({ payload: { task_id, assignee_user_id } }) {
+export function* assignTaskSaga({ payload: { task_id, assignee_user_id, ...props } }) {
   const { taskUrl } = apiConfig;
   let { user_id, farm_id } = yield select(loginSelector);
+  let { email, ...rest } = props;
   const header = getHeader(user_id, farm_id);
   try {
     const result = yield call(
       axios.patch,
       `${taskUrl}/assign/${task_id}`,
-      { assignee_user_id: assignee_user_id },
+      { assignee_user_id: assignee_user_id, ...rest },
       header,
     );
     yield put(putTaskSuccess({ assignee_user_id, task_id }));
+    if (assignee_user_id)
+      yield put(putUserSuccess({ wage: rest.wage, email, user_id: assignee_user_id, farm_id }));
     yield put(enqueueSuccessSnackbar(i18n.t('message:ASSIGN_TASK.SUCCESS')));
   } catch (e) {
     console.log(e);

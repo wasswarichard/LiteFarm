@@ -36,6 +36,25 @@ const adminRoles = [1, 2, 5];
 // };
 
 const taskController = {
+  async updateAssigneeWage({ res, farm_id, newAssigneeUserId, wage }) {
+    // update wage and don't always ask wage
+    if (wage.amount || wage.never_ask) {
+      const trx = await transaction.start(Model.knex());
+      const isPatched = await UserFarmModel.query(trx)
+        .where('farm_id', farm_id)
+        .andWhere('user_id', newAssigneeUserId)
+        .patch({
+          wage,
+        });
+      if (isPatched) {
+        await trx.commit();
+      } else {
+        await trx.rollback();
+        return res.sendStatus(404);
+      }
+    }
+  },
+
   async assignTask(req, res) {
     try {
       const { task_id } = req.params;
@@ -111,22 +130,7 @@ const taskController = {
         );
       }
 
-      // update wage and don't always ask wage
-      if (wage.amount || wage.never_ask) {
-        const trx = await transaction.start(Model.knex());
-        const isPatched = await UserFarmModel.query(trx)
-          .where('farm_id', farm_id)
-          .andWhere('user_id', newAssigneeUserId)
-          .patch({
-            wage,
-          });
-        if (isPatched) {
-          await trx.commit();
-        } else {
-          await trx.rollback();
-          return res.sendStatus(404);
-        }
-      }
+      await this.updateAssigneeWage({ res, farm_id, newAssigneeUserId, wage });
 
       // assign all other unassigned tasks due on this day to newAssigneeUserId
       const available_tasks = await TaskModel.getAvailableTasksOnDate(taskIds, date, req.user);

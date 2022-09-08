@@ -53,8 +53,12 @@ export default function TaskQuickAssignModal({
 
   const [selectedWorker, setWorker] = useState(isAssigned ? unAssignedOption : selfOption);
   const [assignAll, setAssignAll] = useState(false);
-  const [neverAsk, setNeverAsk] = useState(false);
-  const [wageAmount, setWageAmount] = useState(0);
+  const [neverAsk, setNeverAsk] = useState(
+    selectedWorker.wage && selectedWorker.wage.never_ask ? selectedWorker.wage.never_ask : false,
+  );
+  const [wageAmount, setWageAmount] = useState(
+    selectedWorker.wage && selectedWorker.wage.amount ? selectedWorker.wage.amount : 0,
+  );
 
   const tasks = useSelector(tasksSelector);
 
@@ -92,6 +96,12 @@ export default function TaskQuickAssignModal({
       : onAssignTask({
           task_id: task_id,
           assignee_user_id: selectedWorker.value,
+          wage: {
+            never_ask: neverAsk,
+            amount: parseInt(wageAmount),
+            type: 'hourly',
+          },
+          email: selectedWorker.email,
         });
     dismissModal();
   };
