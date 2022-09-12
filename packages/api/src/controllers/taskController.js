@@ -24,7 +24,7 @@ import HarvestUse from '../models/harvestUseModel.js';
 import NotificationUser from '../models/notificationUserModel.js';
 import User from '../models/userModel.js';
 import { typesOfTask } from './../middleware/validation/task.js';
-import { Model, transaction } from 'objection';
+import userFarmController from './userFarmController.js';
 
 const adminRoles = [1, 2, 5];
 // const isDateInPast = (date) => {
@@ -42,7 +42,7 @@ const taskController = {
       const { task_id } = req.params;
       const { farm_id } = req.headers;
       const { user_id } = req.user;
-      const { assignee_user_id: newAssigneeUserId, wage } = req.body;
+      const { assignee_user_id: newAssigneeUserId } = req.body;
       const { assignee_user_id: oldAssigneeUserId, task_translation_key } = req.checkTaskStatus;
 
       // Avoid 1) making an empty update, and 2) sending a redundant notification.
@@ -60,23 +60,8 @@ const taskController = {
         farm_id,
         user_id,
       );
-
       // update wage and don't always ask wage
-      if (newAssigneeUserId !== null) {
-        const trx = await transaction.start(Model.knex());
-        const isPatched = await UserFarmModel.query(trx)
-          .where('farm_id', farm_id)
-          .andWhere('user_id', newAssigneeUserId)
-          .patch({
-            wage,
-          });
-        if (isPatched) {
-          await trx.commit();
-        } else {
-          await trx.rollback();
-          return res.sendStatus(404);
-        }
-      }
+      if (newAssigneeUserId !== null) await userFarmController.updateAssigneeWage()(req, res);
 
       if (newAssigneeUserId === null) {
         const farmManagementObjs = await UserFarmModel.getFarmManagementByFarmId(farm_id);
@@ -102,7 +87,7 @@ const taskController = {
     try {
       const { farm_id } = req.headers;
       const { user_id } = req.user;
-      const { assignee_user_id: newAssigneeUserId, date, wage } = req.body;
+      const { assignee_user_id: newAssigneeUserId, date } = req.body;
       const {
         assignee_user_id: oldAssigneeUserId,
         task_translation_key: currentTaskTranslationKey,
@@ -130,19 +115,7 @@ const taskController = {
       }
 
       // update wage and don't always ask wage
-      const trx = await transaction.start(Model.knex());
-      const isPatched = await UserFarmModel.query(trx)
-        .where('farm_id', farm_id)
-        .andWhere('user_id', newAssigneeUserId)
-        .patch({
-          wage,
-        });
-      if (isPatched) {
-        await trx.commit();
-      } else {
-        await trx.rollback();
-        return res.sendStatus(404);
-      }
+      await userFarmController.updateAssigneeWage()(req, res);
 
       // assign all other unassigned tasks due on this day to newAssigneeUserId
       const available_tasks = await TaskModel.getAvailableTasksOnDate(taskIds, date, req.user);
