@@ -24,6 +24,8 @@ import HarvestUse from '../models/harvestUseModel.js';
 import NotificationUser from '../models/notificationUserModel.js';
 import User from '../models/userModel.js';
 import { typesOfTask } from './../middleware/validation/task.js';
+import userFarmController from './userFarmController.js';
+
 const adminRoles = [1, 2, 5];
 // const isDateInPast = (date) => {
 //   const today = new Date();
@@ -58,6 +60,8 @@ const taskController = {
         farm_id,
         user_id,
       );
+      // update wage and don't always ask wage
+      if (newAssigneeUserId !== null) await userFarmController.updateAssigneeWage()(req, res);
 
       if (newAssigneeUserId === null) {
         const farmManagementObjs = await UserFarmModel.getFarmManagementByFarmId(farm_id);
@@ -109,6 +113,9 @@ const taskController = {
           user_id,
         );
       }
+
+      // update wage and don't always ask wage
+      await userFarmController.updateAssigneeWage()(req, res);
 
       // assign all other unassigned tasks due on this day to newAssigneeUserId
       const available_tasks = await TaskModel.getAvailableTasksOnDate(taskIds, date, req.user);

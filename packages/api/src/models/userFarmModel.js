@@ -81,6 +81,7 @@ class userFarm extends Model {
               enum: ['hourly', 'annually'],
             },
             amount: { type: ['number', null] },
+            never_ask: { type: ['boolean', false] },
           },
         },
         step_one: { type: ['boolean', 'null'] },

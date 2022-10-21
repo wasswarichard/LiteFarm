@@ -454,6 +454,32 @@ const userFarmController = {
     };
   },
 
+  updateAssigneeWage() {
+    return async (req, res) => {
+      const { farm_id } = req.headers;
+      const { assignee_user_id: newAssigneeUserId, wage } = req.body;
+      const trx = await transaction.start(Model.knex());
+      try {
+        const isPatched = await UserFarmModel.query(trx)
+          .where('farm_id', farm_id)
+          .andWhere('user_id', newAssigneeUserId)
+          .patch({
+            wage,
+          });
+        if (isPatched) {
+          await trx.commit();
+        } else {
+          await trx.rollback();
+          res.sendStatus(404);
+        }
+      } catch (error) {
+        // handle more exceptions
+        await trx.rollback();
+        res.status(400).send(error);
+      }
+    };
+  },
+
   updateWage() {
     return async (req, res) => {
       const trx = await transaction.start(Model.knex());
